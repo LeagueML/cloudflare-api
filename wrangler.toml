@@ -1,0 +1,12 @@
+name = "api-league-ml"
+type = "javascript"
+zone_id = ""
+account_id = ""
+route = ""
+workers_dev = true
+compatibility_date = "2022-03-12"
+
+[build]
+command = "pnpm install && pnpm run build"
+[build.upload]
+format = "service-worker"
