@@ -1,7 +1,7 @@
-import { handleRequest } from '../src/handler'
 import makeServiceWorkerEnv from 'service-worker-mock'
+import { handleRequest } from '../src/handler'
 
-declare var global: any
+declare const global: WorkerGlobalScope
 
 describe('handle', () => {
   beforeEach(() => {
@@ -10,9 +10,11 @@ describe('handle', () => {
   })
 
   test('handle GET', async () => {
-    const result = await handleRequest(new Request('/', { method: 'GET' }))
+    const headers = new Headers({});
+    headers.append("Content-Type", "application/json");
+    const result = await handleRequest(new Request('/graphql', { method: 'POST', headers: headers, body: '{ "query": "{ greetings }" }' }))
     expect(result.status).toEqual(200)
     const text = await result.text()
-    expect(text).toEqual('request method: GET')
+    expect(text).toEqual('{"data":{"greetings":"This is the `greetings` field of the root `Query` type"}}')
   })
 })
