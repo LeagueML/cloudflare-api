@@ -28,7 +28,7 @@ jobs:
           run_install: true
       - name: Add pnpm to PATH
         run: |
-          echo "${{steps.install_pnpm.outputs.bin_dest}}" >> $GITHUB_PATH
+          echo "${{ env.PNPM_HOME }}" >> $GITHUB_PATH
       - name: Publish
         uses: cloudflare/wrangler-action@1.3.0
         with:
