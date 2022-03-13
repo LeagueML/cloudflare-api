@@ -2,7 +2,8 @@
   "name": "worker-typescript-template",
   "version": "1.0.0",
   "description": "Cloudflare worker TypeScript template",
-  "main": "dist/worker.js",
+  "main": "dist/worker.js", 
+  "packageManager": "pnpm@6.32.3",
   "scripts": {
     "build": "webpack",
     "format": "prettier --write  '*.{json,js}' 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
