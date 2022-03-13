@@ -7,6 +7,9 @@ on:
 
 jobs:
   deploy:
+    environment:
+      name: production
+      url: https://api.league.ml
     runs-on: ubuntu-latest
     name: Deploy
     steps:
