@@ -1,9 +1,8 @@
-name = "api-league-ml"
+name = "leagueml-api"
 type = "javascript"
-zone_id = ""
-account_id = ""
-route = ""
-workers_dev = true
+zone_id = "f6c9b8379ae4e9e7ae13ee1d17c5a693"
+account_id = "9b4e8a5306252de7d3ebd878e5e80e27"
+route = "api.league.ml/*"
 compatibility_date = "2022-03-12"
 
 [build]

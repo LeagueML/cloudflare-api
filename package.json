@@ -27,7 +27,8 @@
     "eslint": "^7.21.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-config-typescript": "^3.0.0",
-    "jest": "^27.0.1",
+    "jest": "^27.5.1",
+    "jest-environment-miniflare": "^2.3.0",
     "prettier": "^2.3.0",
     "service-worker-mock": "^2.0.5",
     "ts-jest": "^27.0.1",
@@ -38,6 +39,9 @@
   },
   "dependencies": {
     "@graphql-yoga/common": "^0.3.0-canary-b431ad4.0",
+    "@pothos/core": "^3.3.3",
+    "dotenv": "^16.0.0",
+    "faunadb": "^4.5.2",
     "graphql": "^16.3.0"
   }
 }
