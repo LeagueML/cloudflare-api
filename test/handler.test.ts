@@ -9,7 +9,7 @@ describe('handle', () => {
     jest.resetModules()
   })
 
-  test('get a single profile icon', async () => {
+  /*test('get a single profile icon', async () => {
     const headers = new Headers({});
     headers.append("Content-Type", "application/json");
     const result = await handleRequest(new Request('/graphql', { method: 'POST', headers: headers, body: '{ "query": "{ profileIconById(id: 685) { id } }" }' }))
@@ -25,5 +25,5 @@ describe('handle', () => {
     const text = await result.text()
     expect(text).toEqual('{"data":{"getSummonerByName":{"name":"Joschmosch334"}}}')
     expect(result.status).toEqual(200)
-  })
+  })*/
 })
