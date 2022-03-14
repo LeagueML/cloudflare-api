@@ -7,6 +7,10 @@ import { Summoner } from './schema/Summoner';
 import { createClient } from './fql';
 import { query as fql } from 'faunadb';
 
+async function updateSummoner(name : PlatformPair<string>, context : ContextType) : Promise<Summoner> {
+    console.log("updating " + name.value);
+    
+}
 
 async function loadSummonerById(id : number, context : ContextType) : Promise<Summoner> {
     console.log("getting" + id);
