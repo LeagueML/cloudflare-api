@@ -13,6 +13,7 @@ It *is* a goal to respect any limit that may come up via the
 To achieve this Riot gives us some data to work with.
 Specifically there are headers for each of the above types of rate limits, with the current call count, the maximum call count and the time until reset.
 
+
 # Burst vs Spread
 Burst:
 - Immediate access to any number of calls allowed on reset
@@ -42,7 +43,7 @@ Remaining App Slots: [t+15, t+20, t+25, t+30]
 Find method slot after t+10
 -> t+16
 
-Final State:    
+Final State:
 App Slots: [t+15, t+20, t+25, t+30]
 Method Slots: [t+8, t+24, t+32]
 

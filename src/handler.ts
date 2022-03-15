@@ -5,11 +5,16 @@ import type { ContextType, PlatformPair } from './schema/types';
 import ddragon from './ddragon';
 import { Summoner } from './schema/Summoner';
 import { createClient } from './fql';
-import { query as fql } from 'faunadb';
+import { query as fql, Sum } from 'faunadb';
+
+declare const RIOT_RATE_LIMIT : DurableObjectNamespace;
 
 async function updateSummoner(name : PlatformPair<string>, context : ContextType) : Promise<Summoner> {
     console.log("updating " + name.value);
     
+    const rateLimiter = RIOT_RATE_LIMIT.get(RIOT_RATE_LIMIT.idFromName(name.platform));
+    await rateLimiter.fetch("dont_care.com/lol/summoner/v4/summoners/by-name/" + name.value);
+    throw new Error("AA");
 }
 
 async function loadSummonerById(id : number, context : ContextType) : Promise<Summoner> {

@@ -9,3 +9,8 @@ compatibility_date = "2022-03-12"
 command = "pnpm install && pnpm run build"
 [build.upload]
 format = "service-worker"
+
+[durable_objects]
+bindings = [
+  { name = "RIOT_RATE_LIMIT", class_name = "RateLimiter" }
+]
