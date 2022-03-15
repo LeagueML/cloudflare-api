@@ -1,16 +1,19 @@
+import { Env } from "./env";
+
 export class RateLimiter implements DurableObject {
   state: DurableObjectState;
-  env: any;
+  env: Env;
 
-  constructor(state: DurableObjectState, env: any) {
+  constructor(state: DurableObjectState, env: Env) {
     this.state = state;
     this.env = env;
   }
 
   // Handle HTTP requests from clients.
   async fetch(request: Request): Promise<Response> {
-    return this.state.blockConcurrencyWhile(() => this.handle(request));
-  }
+    //return this.state.blockConcurrencyWhile(() => this.handle(request));
+    return this.handle(request);
+  } 
 
   async handle(request: Request): Promise<Response> {
     let response: Response;

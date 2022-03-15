@@ -3,14 +3,18 @@ console.log("building base types")
 import { YogaInitialContext } from "@graphql-yoga/common";
 import type { Client } from "faunadb";
 import { DDragonInfo } from "../ddragon";
+import { Env } from "../env";
+import { Server } from "../server";
 import builder from "./builder";
 import { Summoner } from "./Summoner";
 
-export interface ContextType extends YogaInitialContext {
+export interface ContextType {
     summonerById: (p: number) => Promise<Summoner>
     summonerByName: (p: PlatformPair<string>) => Promise<Summoner>
     ddragon: DDragonInfo
     fqlClient: Client
+    server: Server
+    env: Env
 }
 
 export enum Platform { 

@@ -1,7 +1,14 @@
-import { handleRequest } from './handler'
-export { RateLimiter } from './ratelimiting';
+import { Env } from './env';
+import { Server } from './server';
 
-// test
-addEventListener('fetch', (event : FetchEvent) => {
-  event.respondWith(handleRequest(event.request));
-})
+const server = new Server();
+
+export default {
+  async fetch(request: Request, env: Env) : Promise<Response> {
+    try {
+      return await server.handleRequest(request, env);
+    } catch (e) {
+      return new Response(`${e}`)
+    }
+  }
+}
