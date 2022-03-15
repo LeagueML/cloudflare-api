@@ -12,35 +12,6 @@ export class RateLimiter implements DurableObject {
     return this.state.blockConcurrencyWhile(() => this.handle(request));
   }
 
-  getMethodKey(path: string): string {
-    if (path.startsWith("/lol/summoner/v4/summoners"))
-      return "summoners-v4";
-    throw new Error("Unknown PATH " + path);
-  }
-
-  decodeLimitHeader(str: string | null): Map<number, number> | null {
-    if (!str) return null;
-    return str
-      .split(',')
-      .map(p => p
-        .split(':')
-        .map(x => Number(x))
-      ).filter(p => p.length == 2)
-      .reduce((m, p) => m.set(p[1], p[0]), new Map<number, number>());
-  }
-
-  parseRetryAfter(text: string): number {
-    const nVal = Number(text);
-    if (Number.isFinite(nVal))
-      return (nVal || 1) * 1000;
-
-    return Date.parse(text);
-  }
-
-  waitMs(time: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, time));
-  }
-
   async handle(request: Request): Promise<Response> {
     let response: Response;
     let done = false;
@@ -48,7 +19,7 @@ export class RateLimiter implements DurableObject {
     const url = new URL(request.url);
     const path = url.pathname + url.search;
     const riotUrl = this.state.id + ".api.riotgames.com" + path;
-    const methodKey = this.getMethodKey(url.pathname);
+    const methodKey = getMethodKey(url.pathname);
 
     do {
       // wait for app slot
@@ -56,7 +27,7 @@ export class RateLimiter implements DurableObject {
       if (nextAppSlot) {
         const diff = nextAppSlot - Date.now();
         if (diff > 0)
-          await this.waitMs(diff);
+          await waitMs(diff);
       }
 
       // wait for method slot
@@ -64,7 +35,7 @@ export class RateLimiter implements DurableObject {
       if (nextMethodSlot) {
         const diff = nextMethodSlot - Date.now();
         if (diff > 0)
-          await this.waitMs(diff);
+          await waitMs(diff);
       }
 
       // do response (wait in case of 429)
@@ -73,7 +44,7 @@ export class RateLimiter implements DurableObject {
       response = await fetch(riotUrl, { cache: "no-cache", headers: headers });
 
       if (response.status == 429) {
-        await this.waitMs(this.parseRetryAfter(response.headers.get("Retry-After") ?? "30"));
+        await waitMs(parseRetryAfter(response.headers.get("Retry-After") ?? "30"));
       }
 
       if (response.status == 200) {
@@ -82,8 +53,8 @@ export class RateLimiter implements DurableObject {
 
     } while (!done);
 
-    const appRateLimit = this.decodeLimitHeader(response.headers.get("X-App-Rate-Limit")) ?? new Map<number, number>();
-    const appRateLimitCount = this.decodeLimitHeader(response.headers.get("X-App-Rate-Limit-Count")) ?? new Map<number, number>();
+    const appRateLimit = decodeLimitHeader(response.headers.get("X-App-Rate-Limit")) ?? new Map<number, number>();
+    const appRateLimitCount = decodeLimitHeader(response.headers.get("X-App-Rate-Limit-Count")) ?? new Map<number, number>();
 
     if (appRateLimit.size != appRateLimitCount.size)
       console.warn("App Limits cannot be calculated correctly. %s %s", response.headers.get('X-App-Rate-Limit'), response.headers.get('X-App-Rate-Limit-Count'));
@@ -95,8 +66,8 @@ export class RateLimiter implements DurableObject {
 
     
 
-    const methodRateLimit = this.decodeLimitHeader(response.headers.get("X-Method-Rate-Limit")) ?? new Map<number, number>();
-    const methodRateLimitCount = this.decodeLimitHeader(response.headers.get("X-Method-Rate-Limit-Count")) ?? new Map<number, number>();
+    const methodRateLimit = decodeLimitHeader(response.headers.get("X-Method-Rate-Limit")) ?? new Map<number, number>();
+    const methodRateLimitCount = decodeLimitHeader(response.headers.get("X-Method-Rate-Limit-Count")) ?? new Map<number, number>();
 
     if (methodRateLimit.size != methodRateLimitCount.size)
       console.warn("Method %s Limits cannot be calculated correctly. %s %s", methodKey, response.headers.get('X-Method-Rate-Limit'), response.headers.get('X-Method-Rate-Limit-Count'));
@@ -120,4 +91,35 @@ class RateLimit {
     this.current = current;
     this.seconds = seconds;
   }
+}
+
+
+
+export function getMethodKey(path: string): string {
+  if (path.startsWith("/lol/summoner/v4/summoners"))
+    return "summoners-v4";
+  throw new Error("Unknown PATH " + path);
+}
+
+export function decodeLimitHeader(str: string | null): Map<number, number> | null {
+  if (!str) return null;
+  return str
+    .split(',')
+    .map(p => p
+      .split(':')
+      .map(x => Number(x))
+    ).filter(p => p.length == 2)
+    .reduce((m, p) => m.set(p[1], p[0]), new Map<number, number>());
+}
+
+export function parseRetryAfter(text: string): number {
+  const nVal = Number(text);
+  if (Number.isFinite(nVal))
+    return (nVal || 1) * 1000;
+
+  return Date.parse(text) - Date.now();
+}
+
+export function waitMs(time: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, time));
 }

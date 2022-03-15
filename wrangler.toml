@@ -12,5 +12,5 @@ format = "service-worker"
 
 [durable_objects]
 bindings = [
-  { name = "RIOT_RATE_LIMIT", class_name = "RateLimiter" }
+  # { name = "RIOT_RATE_LIMIT", class_name = "RateLimiter" }
 ]
