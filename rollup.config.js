@@ -7,6 +7,8 @@ import commonjs from '@rollup/plugin-commonjs'
 import typescript from '@rollup/plugin-typescript'
 import json from '@rollup/plugin-json'
 import nodePolyfills from 'rollup-plugin-node-polyfills';
+import replace from '@rollup/plugin-replace';
+
 
 export default {
   input: 'src/index.ts',
@@ -17,7 +19,13 @@ export default {
     sourcemap: true,
     plugins: [terser()]
   },
-  plugins: [nodePolyfills() /* someone is using util... */,
+  plugins: [
+    nodePolyfills() /* someone is using util... */,
     json() /* FaunaDB imports it's own package.json for unecessary reasons */,
-     typescript(), commonjs(), nodeResolve({ browser: true })],
+    typescript(),
+    replace({
+      'process.env.NODE_ENV': JSON.stringify('production'),
+    }),
+    commonjs(),
+    nodeResolve({ browser: true })],
 }
