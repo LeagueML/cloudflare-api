@@ -20,5 +20,5 @@ jobs:
       run: pnpm i
     - name: Build Project
       run: pnpm run build
-    - name: Run tests
-      run: pnpm run test
+#    - name: Run tests
+#      run: pnpm run test
