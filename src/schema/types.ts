@@ -8,7 +8,7 @@ import builder from "./builder";
 import { Summoner } from "./Summoner";
 
 export interface ContextType {
-    summonerByName: (p: PlatformPair<string>) => Promise<Summoner>
+    summonerByName: (p: PlatformPair<string>) => Promise<Summoner | null>
     ddragon: DDragonInfo
 //    fqlClient: Client
     server: Server

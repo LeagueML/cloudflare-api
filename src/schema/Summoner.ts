@@ -45,6 +45,7 @@ builder.objectType(Summoner, {
 
 builder.queryField("getSummonerByName", (t) => t.field({
     type: Summoner,
+    nullable: true,
     args: {
         name: t.arg.string({ required: true }),
         platform: t.arg({ type: Platform, required: true })

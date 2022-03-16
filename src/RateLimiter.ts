@@ -58,7 +58,10 @@ export class RateLimiter implements DurableObject {
         await waitMs(retryMs);
       }
 
-      if (response.status == 200) {
+      if (response.status == 404) {
+        done = true;
+      }
+      else if (response.status == 200) {
         done = true;
       }
       else {
