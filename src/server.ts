@@ -33,14 +33,20 @@ export class Server {
     }
 
     async updateSummoner(name : PlatformPair<string>, context : ContextType) : Promise<Summoner> {
+        try {
         console.log("updating " + name.value);
         
         const rateLimiter = context.env.RIOT_RATE_LIMIT.get(context.env.RIOT_RATE_LIMIT.idFromName(name.platform));
 
         console.log("calling rate limiter");
-        const response = await rateLimiter.fetch("http://dont_care.com/lol/summoner/v4/summoners/by-name/" + name.value);
+        const response = await rateLimiter.fetch("https://" + name.platform +  ".api.riotgames.com/lol/summoner/v4/summoners/by-name/" + name.value);
         const json = await response.json<any>();
         return new Summoner(name.platform, 0, json.name, json.puuid, json.summonerLevel, new Date(json.revisionDate), json.profileIconId, json.accountId);
+        } 
+        catch(e) {
+            console.warn("Could not update summoner name: " + e);
+            throw new Error("Internal Error during update of summoner");
+        }
     }
 
     async loadSummonerByName(p: PlatformPair<string>, context: ContextType) : Promise<Summoner> {

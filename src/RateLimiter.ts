@@ -23,7 +23,6 @@ export class RateLimiter implements DurableObject {
     console.log("setting up rate limiter");
     const url = new URL(request.url);
     const path = url.pathname + url.search;
-    const riotUrl = "https://" + (this.state.id as DurableObjectId).name + ".api.riotgames.com" + path;
     const methodKey = getMethodKey(url.pathname);
     let requestEnd : number;
 
@@ -47,10 +46,10 @@ export class RateLimiter implements DurableObject {
       }
 
       // do response (wait in case of 429)
-      console.log("fetching Riot API at %s", riotUrl);
+      console.log("fetching Riot API at %s", request.url);
       const headers = new Headers();
       headers.set("X-Riot-Token", this.env.RIOT_API_KEY);
-      response = await fetch(riotUrl, { cache: "no-cache", headers: headers });
+      response = await fetch(request.url, { headers: headers });
       requestEnd = Date.now();
 
       if (response.status == 429) {
