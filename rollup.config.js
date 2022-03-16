@@ -5,7 +5,7 @@ import { terser } from 'rollup-plugin-terser'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import typescript from '@rollup/plugin-typescript'
-import json from '@rollup/plugin-json'
+// import json from '@rollup/plugin-json'
 import nodePolyfills from 'rollup-plugin-node-polyfills';
 import replace from '@rollup/plugin-replace';
 
@@ -21,11 +21,14 @@ export default {
   },
   plugins: [
     nodePolyfills() /* someone is using util... */,
-    json() /* FaunaDB imports it's own package.json for unecessary reasons */,
+    // json() /* FaunaDB imports it's own package.json for unecessary reasons */,
     typescript(),
     replace({
       'process.env.NODE_ENV': JSON.stringify('production'),
+      preventAssignment: true
     }),
-    commonjs(),
+    commonjs({
+      transformMixedEsModules:true // fauna uses require...
+    }),
     nodeResolve({ browser: true })],
 }

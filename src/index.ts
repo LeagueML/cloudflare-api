@@ -1,5 +1,6 @@
 import { Env } from './env';
 import { Server } from './server';
+export { RateLimiter } from './RateLimiter';
 
 const server = new Server();
 
