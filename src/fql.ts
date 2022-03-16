@@ -1,15 +1,14 @@
-import { Client } from 'faunadb';
+/*import { Client } from 'faunadb';
+import { Env } from './env';
 
-declare const FAUNA_SECRET : string;
-
-export function createClient() : Client {
+export function createClient(env : Env) : Client {
     console.log('creating fql client')
     const client = new Client({
-        secret: FAUNA_SECRET,
+        secret: env.FAUNA_SECRET,
         domain: "db.eu.fauna.com",
         keepAlive: false,
         // fetch: fetch
     });
     console.log('done creating client');
     return client;
-}
+}*/

@@ -8,4 +8,14 @@ compatibility_date = "2022-03-12"
 [build]
 command = "pnpm install && pnpm run build"
 [build.upload]
-format = "service-worker"
+format = "modules"
+main = "./index.mjs"
+
+[durable_objects]
+bindings = [
+  { name = "RIOT_RATE_LIMIT", class_name = "RateLimiter" }
+]
+
+[[migrations]]
+tag = "v2"
+new_classes = ["RateLimiter"]
