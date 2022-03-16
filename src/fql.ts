@@ -1,4 +1,4 @@
-/*import { Client } from 'faunadb';
+import { Client } from 'faunadb';
 import { Env } from './env';
 
 export function createClient(env : Env) : Client {
@@ -11,4 +11,4 @@ export function createClient(env : Env) : Client {
     });
     console.log('done creating client');
     return client;
-}*/
+}

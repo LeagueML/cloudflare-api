@@ -1,6 +1,6 @@
 console.log("building base types")
 
-// import type { Client } from "faunadb";
+import type { Client } from "faunadb";
 import { DDragonInfo } from "../ddragon";
 import { Env } from "../env";
 import { Server } from "../server";
@@ -10,7 +10,7 @@ import { Summoner } from "./Summoner";
 export interface ContextType {
     summonerByName: (p: PlatformPair<string>) => Promise<Summoner | null>
     ddragon: DDragonInfo
-//    fqlClient: Client
+    fqlClient: Client
     server: Server
     env: Env
 }

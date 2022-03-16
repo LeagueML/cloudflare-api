@@ -5,8 +5,8 @@ import { Env } from "./env";
 import schema from "./schema";
 import { Summoner } from "./schema/Summoner";
 import { ContextType, PlatformPair } from "./schema/types";
-// import { query as fql } from 'faunadb';
-// import { createClient } from "./fql";
+import { query as fql } from 'faunadb';
+import { createClient } from "./fql";
 
 export class Server {
     server : YogaServer<ContextType, unknown>
@@ -26,7 +26,7 @@ export class Server {
     
             server: this,
             env: env,
-            // get fqlClient() { console.log("building create fql client"); return createClient(this.env) },
+            get fqlClient() { console.log("building create fql client"); return createClient(this.env) },
             ddragon: ddragon,
             get summonerByName() { console.log("building summoner by name"); return ((p: PlatformPair<string>) => this.server.loadSummonerByName(p, this)); },
         })
