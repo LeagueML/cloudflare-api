@@ -5,33 +5,6 @@ import { Env } from "./env";
 import schema from "./schema";
 import { Summoner } from "./schema/Summoner";
 import { ContextType, PlatformPair } from "./schema/types";
-// import { query as fql } from 'faunadb';
-// import { createClient } from "./fql";
-
-// BEGIN COPY FROM CF WORKER TYPES ----------------------------------------------------------------
-declare abstract class Cache {
-    delete(
-        request: Request | string,
-        options?: CacheQueryOptions
-    ): Promise<boolean>;
-    match(
-        request: Request | string,
-        options?: CacheQueryOptions
-    ): Promise<Response | undefined>;
-    put(request: Request | string, response: Response): Promise<void>;
-}
-  
-interface CacheQueryOptions {
-ignoreMethod?: boolean;
-}
-  
-declare abstract class CacheStorage {
-open(cacheName: string): Promise<Cache>;
-readonly default: Cache;
-}
-
-declare const caches: CacheStorage;
-// END COPY FROM CF WORKER TYPES ----------------------------------------------------------------
 
 export class Server {
     server : YogaServer<ContextType, unknown>
@@ -51,7 +24,6 @@ export class Server {
     
             server: this,
             env: env,
-            // get fqlClient() { console.log("building create fql client"); return createClient(this.env) },
             ddragon: ddragon,
             get summonerByName() { console.log("building summoner by name"); return ((p: PlatformPair<string>) => this.server.loadSummonerByName(p, this)); },
         })
