@@ -10,7 +10,6 @@ import { Summoner } from "./Summoner";
 export interface ContextType {
     summonerByName: (p: PlatformPair<string>) => Promise<Summoner | null>
     ddragon: DDragonInfo
-//    fqlClient: Client
     server: Server
     env: Env
 }

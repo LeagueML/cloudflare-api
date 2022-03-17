@@ -5,33 +5,6 @@ import { Env } from "./env";
 import schema from "./schema";
 import { Summoner } from "./schema/Summoner";
 import { ContextType, PlatformPair } from "./schema/types";
-// import { query as fql } from 'faunadb';
-// import { createClient } from "./fql";
-
-// BEGIN COPY FROM CF WORKER TYPES ----------------------------------------------------------------
-declare abstract class Cache {
-    delete(
-        request: Request | string,
-        options?: CacheQueryOptions
-    ): Promise<boolean>;
-    match(
-        request: Request | string,
-        options?: CacheQueryOptions
-    ): Promise<Response | undefined>;
-    put(request: Request | string, response: Response): Promise<void>;
-}
-  
-interface CacheQueryOptions {
-ignoreMethod?: boolean;
-}
-  
-declare abstract class CacheStorage {
-open(cacheName: string): Promise<Cache>;
-readonly default: Cache;
-}
-
-declare const caches: CacheStorage;
-// END COPY FROM CF WORKER TYPES ----------------------------------------------------------------
 
 export class Server {
     server : YogaServer<ContextType, unknown>
@@ -51,7 +24,6 @@ export class Server {
     
             server: this,
             env: env,
-            // get fqlClient() { console.log("building create fql client"); return createClient(this.env) },
             ddragon: ddragon,
             get summonerByName() { console.log("building summoner by name"); return ((p: PlatformPair<string>) => this.server.loadSummonerByName(p, this)); },
         })
@@ -64,26 +36,34 @@ export class Server {
             const rateLimiter = context.env.RIOT_RATE_LIMIT.get(context.env.RIOT_RATE_LIMIT.idFromName(name.platform));
 
             const url = "https://" + name.platform +  ".api.riotgames.com/lol/summoner/v4/summoners/by-name/" + name.value;
-            let response : Response;
 
-            const cacheResponse = await caches.default.match(url);
-            if (cacheResponse)
+            let json : any;
+
+            const cacheKey = name.platform + "_" + name.value;
+            const cached = await context.env.SUMMONER_CACHE.get(cacheKey);
+            if (cached)
             {
                 console.log("using cache response")
-                response = cacheResponse;
+                if (cached === 'null')
+                    return null;
+
+                json = JSON.parse(cached);
             }
             else
             {
                 console.log("calling rate limiter");
-                response = await rateLimiter.fetch(url);
-                await caches.default.put(url, response.clone());
+                const response = await rateLimiter.fetch(url);
+
+                if (response.status == 404)
+                {
+                    await context.env.SUMMONER_CACHE.put(cacheKey, 'null', { expirationTtl: 3600});
+                    return null;
+                }
+    
+                json = await response.json<any>();
+                await context.env.SUMMONER_CACHE.put(cacheKey, JSON.stringify(json), { expirationTtl: 900});
             }
 
-            if (response.status == 404)
-                return null;
-
-            console.log("reading json")
-            const json = await response.json<any>();
             return new Summoner(name.platform, 0, json.name, json.puuid, json.summonerLevel, new Date(json.revisionDate), json.profileIconId, json.accountId);
         } 
         catch(e : any) {
