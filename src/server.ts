@@ -36,26 +36,34 @@ export class Server {
             const rateLimiter = context.env.RIOT_RATE_LIMIT.get(context.env.RIOT_RATE_LIMIT.idFromName(name.platform));
 
             const url = "https://" + name.platform +  ".api.riotgames.com/lol/summoner/v4/summoners/by-name/" + name.value;
-            let response : Response;
 
-            const cacheResponse = await caches.default.match(url);
-            if (cacheResponse)
+            let json : any;
+
+            const cacheKey = name.platform + "_" + name.value;
+            const cached = await context.env.SUMMONER_CACHE.get(cacheKey);
+            if (cached)
             {
                 console.log("using cache response")
-                response = cacheResponse;
+                if (cached === 'null')
+                    return null;
+
+                json = JSON.parse(cached);
             }
             else
             {
                 console.log("calling rate limiter");
-                response = await rateLimiter.fetch(url);
-                await caches.default.put(url, response.clone());
+                const response = await rateLimiter.fetch(url);
+
+                if (response.status == 404)
+                {
+                    await context.env.SUMMONER_CACHE.put(cacheKey, 'null', { expirationTtl: 3600});
+                    return null;
+                }
+    
+                json = await response.json<any>();
+                await context.env.SUMMONER_CACHE.put(cacheKey, JSON.stringify(json), { expirationTtl: 900});
             }
 
-            if (response.status == 404)
-                return null;
-
-            console.log("reading json")
-            const json = await response.json<any>();
             return new Summoner(name.platform, 0, json.name, json.puuid, json.summonerLevel, new Date(json.revisionDate), json.profileIconId, json.accountId);
         } 
         catch(e : any) {
