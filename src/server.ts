@@ -8,6 +8,31 @@ import { ContextType, PlatformPair } from "./schema/types";
 // import { query as fql } from 'faunadb';
 // import { createClient } from "./fql";
 
+// BEGIN COPY FROM CF WORKER TYPES ----------------------------------------------------------------
+declare abstract class Cache {
+    delete(
+        request: Request | string,
+        options?: CacheQueryOptions
+    ): Promise<boolean>;
+    match(
+        request: Request | string,
+        options?: CacheQueryOptions
+    ): Promise<Response | undefined>;
+    put(request: Request | string, response: Response): Promise<void>;
+}
+  
+interface CacheQueryOptions {
+ignoreMethod?: boolean;
+}
+  
+declare abstract class CacheStorage {
+open(cacheName: string): Promise<Cache>;
+readonly default: Cache;
+}
+
+declare const caches: CacheStorage;
+// END COPY FROM CF WORKER TYPES ----------------------------------------------------------------
+
 export class Server {
     server : YogaServer<ContextType, unknown>
 
@@ -38,15 +63,32 @@ export class Server {
             
             const rateLimiter = context.env.RIOT_RATE_LIMIT.get(context.env.RIOT_RATE_LIMIT.idFromName(name.platform));
 
-            console.log("calling rate limiter");
-            const response = await rateLimiter.fetch("https://" + name.platform +  ".api.riotgames.com/lol/summoner/v4/summoners/by-name/" + name.value);
+            const url = "https://" + name.platform +  ".api.riotgames.com/lol/summoner/v4/summoners/by-name/" + name.value;
+            let response : Response;
+
+            const cacheResponse = await caches.default.match(url);
+            if (cacheResponse)
+            {
+                console.log("using cache response")
+                response = cacheResponse;
+            }
+            else
+            {
+                console.log("calling rate limiter");
+                response = await rateLimiter.fetch(url);
+                await caches.default.put(url, response.clone());
+            }
+
             if (response.status == 404)
                 return null;
+
+            console.log("reading json")
             const json = await response.json<any>();
             return new Summoner(name.platform, 0, json.name, json.puuid, json.summonerLevel, new Date(json.revisionDate), json.profileIconId, json.accountId);
         } 
-        catch(e) {
+        catch(e : any) {
             console.warn("Could not update summoner name: " + e);
+            console.warn(e.stack);
             throw new Error("Internal Error during update of summoner");
         }
     }
